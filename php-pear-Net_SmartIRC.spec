@@ -8,7 +8,7 @@
 Summary:	%{_pearname} - IRC client class
 Name:		php-pear-%{_pearname}
 Version:	1.0.0
-Release:	%mkrel 1
+Release:	%mkrel 2
 License:	PHP License
 Group:		Development/PHP
 URL:		http://pear.php.net/package/Net_SmartIRC/	
