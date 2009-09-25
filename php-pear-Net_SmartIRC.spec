@@ -1,22 +1,21 @@
 %define		_class		Net
 %define		_subclass	SmartIRC
-%define		_status		stable
-%define		_pearname	%{_class}_%{_subclass}
+%define		upstream_name	%{_class}_%{_subclass}
 
 %define		_requires_exceptions pear(../SmartIRC.php)
 
-Summary:	%{_pearname} - IRC client class
-Name:		php-pear-%{_pearname}
-Version:	1.0.0
-Release:	%mkrel 2
+Summary:	IRC client class
+Name:		php-pear-%{upstream_name}
+Version:	1.0.1
+Release:	%mkrel 1
 License:	PHP License
 Group:		Development/PHP
 URL:		http://pear.php.net/package/Net_SmartIRC/	
-Source0:	http://pear.php.net/get/%{_pearname}-%{version}.tgz
-Patch0:		Net_SmartIRC-1.0.0-fix-path.patch
+Source0:	http://pear.php.net/get/%{upstream_name}-%{version}.tgz
 Requires(post): php-pear
 Requires(preun): php-pear
 Requires:	php-pear
+BuildRequires:	php-pear
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}
 
@@ -42,43 +41,32 @@ Featurelist:
 - IRC functions: op, deop, voice, devoice, ban, unban, join, part,
   action, message, query, ctcp, mode, topic, nick, invite
 
-In PEAR status of this package is: %{_status}.
 
 %prep
 %setup -q -c
-cd %{_pearname}-%{version}
-%patch0 -p1
+mv package.xml %{upstream_name}-%{version}/%{upstream_name}.xml
 
 %install
 rm -rf %{buildroot}
 
-install -d -m 755 %{buildroot}%{_datadir}/pear/%{_class}/%{_subclass}
+cd %{upstream_name}-%{version}
+pear install --nodeps --packagingroot %{buildroot} %{upstream_name}.xml
+rm -rf %{buildroot}%{_datadir}/pear/.??*
 
-install -m 644 %{_pearname}-%{version}/*.php \
-    %{buildroot}%{_datadir}/pear/%{_class}
-install -m 644 %{_pearname}-%{version}/SmartIRC/*.php \
-    %{buildroot}%{_datadir}/pear/%{_class}/%{_subclass}
+rm -rf %{buildroot}%{_datadir}/pear/docs
+rm -rf %{buildroot}%{_datadir}/pear/tests
 
-install -d -m 755 %{buildroot}%{_datadir}/pear/packages
-install -m 644 package.xml %{buildroot}%{_datadir}/pear/packages/%{_pearname}.xml
+install -d %{buildroot}%{_datadir}/pear/packages
+install -m 644 %{upstream_name}.xml %{buildroot}%{_datadir}/pear/packages
 
 %post
-if [ "$1" = "1" ]; then
-	if [ -x %{_bindir}/pear -a -f %{_datadir}/pear/packages/%{_pearname}.xml ]; then
-		%{_bindir}/pear install --nodeps -r %{_datadir}/pear/packages/%{_pearname}.xml
-	fi
-fi
-if [ "$1" = "2" ]; then
-	if [ -x %{_bindir}/pear -a -f %{_datadir}/pear/packages/%{_pearname}.xml ]; then
-		%{_bindir}/pear upgrade -f --nodeps -r %{_datadir}/pear/packages/%{_pearname}.xml
-	fi
-fi
+pear install --nodeps --soft --force --register-only \
+    %{_datadir}/pear/packages/%{upstream_name}.xml >/dev/null || :
 
 %preun
-if [ "$1" = 0 ]; then
-	if [ -x %{_bindir}/pear -a -f %{_datadir}/pear/packages/%{_pearname}.xml ]; then
-		%{_bindir}/pear uninstall --nodeps -r %{_pearname}
-	fi
+if [ "$1" -eq "0" ]; then
+    pear uninstall --nodeps --ignore-errors --register-only \
+        %{pear_name} >/dev/null || :
 fi
 
 %clean
@@ -86,8 +74,5 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
-%doc %{_pearname}-%{version}/{CHANGELOG,CREDITS,FEATURES,LICENSE,README,docs,examples}
 %{_datadir}/pear/%{_class}
-%{_datadir}/pear/packages/%{_pearname}.xml
-
-
+%{_datadir}/pear/packages/%{upstream_name}.xml
