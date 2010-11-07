@@ -5,8 +5,8 @@
 %define		_requires_exceptions pear(../SmartIRC.php)
 
 Name:		php-pear-%{upstream_name}
-Version:	1.0.1
-Release:	%mkrel 2
+Version:	1.0.2
+Release:	%mkrel 1
 Summary:	IRC client class
 License:	PHP License
 Group:		Development/PHP
